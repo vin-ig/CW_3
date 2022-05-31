@@ -1,6 +1,5 @@
-venv/
-.idea/
-.*_cache/
-__pycache__
-*.db
-.coverage
+*.idea
+*__pycache__
+.DS_Store
+source
+venv
