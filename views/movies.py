@@ -1,53 +1,91 @@
-from flask import request
-from flask_restx import Resource, Namespace
+from flask_restx import Namespace, Resource
+from flask import request, jsonify
+from sqlalchemy.orm import exc
 
-from dao.model.movie import MovieSchema
-from implemented import movie_service
-from utils import auth_required, admin_required
+from app.constants import movie_keys
+from app.container import movie_service
+from app.dao.model.movie import MovieSchema
+from app.utils import check_keys
 
 movie_ns = Namespace('movies')
+
+movie_s = MovieSchema()
+movies_s = MovieSchema(many=True)
 
 
 @movie_ns.route('/')
 class MoviesView(Resource):
-    @auth_required
-    def get(self):
-        director = request.args.get("director_id")
-        genre = request.args.get("genre_id")
-        year = request.args.get("year")
-        filters = {
-            "director_id": director,
-            "genre_id": genre,
-            "year": year,
-        }
-        all_movies = movie_service.get_all(filters)
-        res = MovieSchema(many=True).dump(all_movies)
-        return res, 200
+	def get(self):
+		"""Выводит все фильмы"""
+		page = request.args.get('page')
+		status = request.args.get('status')
 
-    @admin_required
-    def post(self):
-        req_json = request.json
-        movie = movie_service.create(req_json)
-        return "", 201, {"location": f"/movies/{movie.id}"}
+		# Используем фильтры из запроса
+		if page:
+			filter = 'page'
+			value = page
+		elif status:
+			filter = 'status'
+			value = status
+		else:
+			filter = None
+			value = None
+		movies = movie_service.get_all(filter, value)
+
+		return movies_s.dump(movies), 200
+
+	def post(self):
+		"""Добавляет новый фильм"""
+		data = request.json
+		if not check_keys(data, movie_keys):
+			return 'Переданы неверные ключи', 200
+		new_movie = movie_service.create(data)
+		response = jsonify()
+		response.status_code = 201
+		response.headers['location'] = f'movies/{new_movie.id}'
+		return response
 
 
 @movie_ns.route('/<int:uid>')
 class MovieView(Resource):
-    @auth_required
-    def get(self, uid):
-        b = movie_service.get_one(uid)
-        sm_d = MovieSchema().dump(b)
-        return sm_d, 200
+	def get(self, uid):
+		"""Выводит один фильм"""
+		try:
+			movie = movie_service.get_one(uid)
+			return movie_s.dump(movie), 200
+		except AttributeError:
+			return 'Нет фильма с таким ID', 404
 
-    @admin_required
-    def put(self, uid):
-        req_json = request.json
-        if "id" not in req_json:
-            req_json["id"] = uid
-        movie_service.update(req_json)
-        return "", 204
+	def put(self, uid):
+		"""Выполняет полное обновление полей фильма"""
+		try:
+			data = request.json
+			if not check_keys(data, movie_keys):
+				return 'Переданы неверные ключи', 200
 
-    @admin_required
-    def delete(self, uid):
-        movie_service.delete(uid)
-        return "", 204
+			movie_service.update(data, uid)
+			return 'Данные фильма обновлены', 200
+
+		except AttributeError:
+			return 'Нет фильма с таким ID', 404
+
+	def patch(self, uid):
+		"""Выполняет частичное обновление полей фильма"""
+		try:
+			data = request.json
+			if not check_keys(data, movie_keys):
+				return 'Переданы неверные ключи', 200
+
+			movie_service.update(data, uid)
+			return 'Данные фильма обновлены', 200
+
+		except AttributeError:
+			return 'Нет фильма с таким ID', 404
+
+	def delete(self, uid):
+		"""Удаляет фильм"""
+		try:
+			movie_service.delete(uid)
+			return 'Фильм удален', 200
+		except (AttributeError, exc.UnmappedInstanceError):
+			return 'Нет фильма с таким ID', 404

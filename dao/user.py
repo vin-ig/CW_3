@@ -25,9 +25,6 @@ class UserDAO:
 		self.session.delete(user)
 		self.session.commit()
 
-	def update(self, user_d):
-		user = self.get_one(user_d.get("id"))
-		user.name = user_d.get("name")
-
+	def update(self, user):
 		self.session.add(user)
 		self.session.commit()

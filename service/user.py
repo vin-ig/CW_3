@@ -26,3 +26,14 @@ class UserService:
 	def create(self, new_user):
 		new_user['password'] = self.get_hash(new_user['password'])
 		return self.dao.create(new_user)
+
+	def update(self, data, uid):
+		user = self.dao.get_one(uid)
+
+		user.email = data.get('email', user.email)
+		user.password = data.get('password', user.password)
+		user.name = data.get('name', user.name)
+		user.surname = data.get('surname', user.surname)
+		user.favourite_genre = data.get('favourite_genre', user.favourite_genre)
+		
+		self.dao.update(user)

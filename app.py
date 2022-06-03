@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_restx import Api
 
 from config import Config
@@ -30,6 +30,12 @@ def register_extensions(app):
 
 
 app = create_app(Config())
+
+
+@app.route('/index')
+def index():
+    return render_template('index.html')
+
 
 if __name__ == '__main__':
     app.run()

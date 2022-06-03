@@ -1,54 +1,63 @@
-from dao.model.movie import Movie
+from app.dao.model.movie import Movie
+from app.dao.model.director import Director
+from app.dao.model.genre import Genre
+from app.constants import QUERY
 
 
 class MovieDAO:
-    def __init__(self, session):
-        self.session = session
+	def __init__(self, session):
+		self.session = session
 
-    def get_one(self, bid):
-        return self.session.query(Movie).get(bid)
+	def get_one(self, uid):
+		"""Возвращает один фильм (для использования в других методах)"""
+		return self.session.query(Movie).get(uid)
 
-    def get_all(self):
-        # А еще можно сделать так, вместо всех методов get_by_*
-        # t = self.session.query(Movie)
-        # if "director_id" in filters:
-        #     t = t.filter(Movie.director_id == filters.get("director_id"))
-        # if "genre_id" in filters:
-        #     t = t.filter(Movie.genre_id == filters.get("genre_id"))
-        # if "year" in filters:
-        #     t = t.filter(Movie.year == filters.get("year"))
-        # return t.all()
-        return self.session.query(Movie).all()
+	def get_one_join(self, uid):
+		"""Возвращает один фильм (для вьюшек)"""
+		movie = self.session.query(Movie).get(uid)
 
-    def get_by_director_id(self, val):
-        return self.session.query(Movie).filter(Movie.director_id == val).all()
+		if movie.director_id and movie.genre_id:
+			query_ = Director.name.label('director'), Genre.name.label('genre')
+			return self.session.query(*QUERY, *query_).join(Director).join(Genre).filter(Movie.id == uid).first()
+		elif movie.director_id:
+			query_ = Director.name.label('director')
+			return self.session.query(*QUERY, query_).filter(Movie.id == uid).first()
+		elif movie.genre_id:
+			query_ = Genre.name.label('genre')
+			return self.session.query(*QUERY, query_).join(Genre).filter(Movie.id == uid).first()
+		else:
+			return movie
 
-    def get_by_genre_id(self, val):
-        return self.session.query(Movie).filter(Movie.genre_id == val).all()
+	def get_all(self, filter, value):
+		"""Возвращает все фильмы"""
+		query_ = Director.name.label('director'), Genre.name.label('genre')
+		select = self.session.query(*QUERY, *query_).join(Director).join(Genre)
 
-    def get_by_year(self, val):
-        return self.session.query(Movie).filter(Movie.year == val).all()
+		# Делаем подборку по фильтрам
+		if filter == 'year':
+			return select.filter(Movie.year == value).all()
+		elif filter == 'director':
+			return select.filter(Movie.director_id == value).all()
+		elif filter == 'genre':
+			return select.filter(Movie.genre_id == value).all()
 
-    def create(self, movie_d):
-        ent = Movie(**movie_d)
-        self.session.add(ent)
-        self.session.commit()
-        return ent
+		return select.all()
 
-    def delete(self, rid):
-        movie = self.get_one(rid)
-        self.session.delete(movie)
-        self.session.commit()
+	def create(self, data):
+		"""Добавляет новый фильм"""
+		movie = Movie(**data)
+		self.session.add(movie)
+		self.session.commit()
+		return movie
 
-    def update(self, movie_d):
-        movie = self.get_one(movie_d.get("id"))
-        movie.title = movie_d.get("title")
-        movie.description = movie_d.get("description")
-        movie.trailer = movie_d.get("trailer")
-        movie.year = movie_d.get("year")
-        movie.rating = movie_d.get("rating")
-        movie.genre_id = movie_d.get("genre_id")
-        movie.director_id = movie_d.get("director_id")
+	def update(self, movie):
+		"""Обновляет фильм"""
+		self.session.add(movie)
+		self.session.commit()
+		return movie
 
-        self.session.add(movie)
-        self.session.commit()
+	def delete(self, uid):
+		"""Удаляет фильм"""
+		movie = self.get_one(uid)
+		self.session.delete(movie)
+		self.session.commit()
