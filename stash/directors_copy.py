@@ -7,22 +7,19 @@ from utils import auth_required, admin_required
 
 director_ns = Namespace('directors')
 
-director_s = DirectorSchema()
-directors_s = DirectorSchema(many=True)
-
 
 @director_ns.route('/')
 class DirectorsView(Resource):
     @auth_required
     def get(self):
-		"""Выводит всех режиссеров"""
-		directors = director_service.get_all()
-		return directors_s.dump(directors), 200
+        rs = director_service.get_all()
+        res = DirectorSchema(many=True).dump(rs)
+        return res, 200
 
     @admin_required
     def post(self):
-        data = request.json
-        director = director_service.create(data)
+        req_json = request.json
+        director = director_service.create(req_json)
         return "", 201, {"location": f"/movies/{director.id}"}
 
 
@@ -30,12 +27,9 @@ class DirectorsView(Resource):
 class DirectorView(Resource):
     @auth_required
     def get(self, uid):
-		"""Выводит одого режиссера"""
-		director = director_service.get_one(uid)
-		if director:
-			return director_s.dump(director), 200
-		else:
-			return 'Нет режиссера с таким ID', 404
+        r = director_service.get_one(uid)
+        sm_d = DirectorSchema().dump(r)
+        return sm_d, 200
 
     @admin_required
     def put(self, uid):
