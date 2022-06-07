@@ -1,4 +1,4 @@
-from app.dao.movie import MovieDAO
+from dao.movie import MovieDAO
 
 
 class MovieService:
@@ -8,8 +8,8 @@ class MovieService:
 	def get_one(self, uid):
 		return self.dao.get_one_join(uid)
 
-	def get_all(self, filter, value):
-		return self.dao.get_all(filter, value)
+	def get_all(self, page, status):
+		return self.dao.get_all(page, status)
 
 	def create(self, data):
 		return self.dao.create(data)

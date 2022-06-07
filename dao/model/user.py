@@ -9,12 +9,14 @@ class User(db.Model):
 	password = db.Column(db.String, nullable=False)
 	name = db.Column(db.String(50))
 	surname = db.Column(db.String(50))
-	favourite_genre = db.Column(db.String(50))
+	favourite_genre = db.Column(db.String())
 	# role = db.Column(db.String)
 
 
 class UserSchema(Schema):
 	id = fields.Int()
-	username = fields.Str()
+	email = fields.Str()
 	password = fields.Str()
-	role = fields.Str()
+	name = fields.Str()
+	surname = fields.Str()
+	favourite_genre = fields.Str()

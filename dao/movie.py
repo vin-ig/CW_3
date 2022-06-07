@@ -1,7 +1,7 @@
-from app.dao.model.movie import Movie
-from app.dao.model.director import Director
-from app.dao.model.genre import Genre
-from app.constants import QUERY
+from dao.model.movie import Movie
+from dao.model.director import Director
+from dao.model.genre import Genre
+from constants import QUERY
 
 
 class MovieDAO:
@@ -28,20 +28,30 @@ class MovieDAO:
 		else:
 			return movie
 
-	def get_all(self, filter, value):
+	def get_all(self, page, status):
 		"""Возвращает все фильмы"""
 		query_ = Director.name.label('director'), Genre.name.label('genre')
 		select = self.session.query(*QUERY, *query_).join(Director).join(Genre)
 
-		# Делаем подборку по фильтрам
-		if filter == 'year':
-			return select.filter(Movie.year == value).all()
-		elif filter == 'director':
-			return select.filter(Movie.director_id == value).all()
-		elif filter == 'genre':
-			return select.filter(Movie.genre_id == value).all()
+		# # Делаем подборку по фильтрам
+		# if filter == 'year':
+		# 	return select.filter(Movie.year == value).all()
+		# elif filter == 'director':
+		# 	return select.filter(Movie.director_id == value).all()
+		# elif filter == 'genre':
+		# 	return select.filter(Movie.genre_id == value).all()
 
-		return select.all()
+		try:
+			page = int(page)
+			lim = 3
+		except (TypeError, ValueError):
+			page = 1
+			lim = Movie.query.count()
+		offs = (page - 1) * lim
+
+
+
+		return select.limit(lim).offset(offs).all()
 
 	def create(self, data):
 		"""Добавляет новый фильм"""

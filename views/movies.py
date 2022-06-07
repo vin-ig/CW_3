@@ -2,10 +2,10 @@ from flask_restx import Namespace, Resource
 from flask import request, jsonify
 from sqlalchemy.orm import exc
 
-from app.constants import movie_keys
-from app.container import movie_service
-from app.dao.model.movie import MovieSchema
-from app.utils import check_keys
+from constants import MOVIE_KEYS
+from implemented import movie_service
+from dao.model.movie import MovieSchema
+from utils import check_keys, get_filters
 
 movie_ns = Namespace('movies')
 
@@ -19,25 +19,26 @@ class MoviesView(Resource):
 		"""Выводит все фильмы"""
 		page = request.args.get('page')
 		status = request.args.get('status')
+		#
+		# # Используем фильтры из запроса
+		# if page:
+		# 	filter = 'page'
+		# 	value = page
+		# elif status:
+		# 	filter = 'status'
+		# 	value = status
+		# else:
+		# 	filter = None
+		# 	value = None
 
-		# Используем фильтры из запроса
-		if page:
-			filter = 'page'
-			value = page
-		elif status:
-			filter = 'status'
-			value = status
-		else:
-			filter = None
-			value = None
-		movies = movie_service.get_all(filter, value)
+		movies = movie_service.get_all(page, status)
 
 		return movies_s.dump(movies), 200
 
 	def post(self):
 		"""Добавляет новый фильм"""
 		data = request.json
-		if not check_keys(data, movie_keys):
+		if not check_keys(data, MOVIE_KEYS):
 			return 'Переданы неверные ключи', 200
 		new_movie = movie_service.create(data)
 		response = jsonify()
@@ -60,7 +61,7 @@ class MovieView(Resource):
 		"""Выполняет полное обновление полей фильма"""
 		try:
 			data = request.json
-			if not check_keys(data, movie_keys):
+			if not check_keys(data, MOVIE_KEYS):
 				return 'Переданы неверные ключи', 200
 
 			movie_service.update(data, uid)
@@ -73,7 +74,7 @@ class MovieView(Resource):
 		"""Выполняет частичное обновление полей фильма"""
 		try:
 			data = request.json
-			if not check_keys(data, movie_keys):
+			if not check_keys(data, MOVIE_KEYS):
 				return 'Переданы неверные ключи', 200
 
 			movie_service.update(data, uid)

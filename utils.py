@@ -17,20 +17,20 @@ def get_hash(password: str):
 	).decode("utf-8", "ignore")
 
 
-def create_data(app, db):
-	with app.app_context():
-		db.create_all()
-
-		u1 = User(username="vasya", password="my_little_pony", role="user")
-		u2 = User(username="oleg", password="qwerty", role="user")
-		u3 = User(username="olga", password="P@ssw0rd", role="admin")
-
-		users = [u1, u2, u3]
-		for user in users:
-			user.password = get_hash(user.password)
-
-		with db.session.begin():
-			db.session.add_all(users)
+# def create_data(app, db):
+# 	with app.app_context():
+# 		db.create_all()
+#
+# 		u1 = User(name="vasya", password="my_little_pony", email="vasya@ya.ru", surname="Kozlov")
+# 		u2 = User(name="oleg", password="qwerty", email="oleg@ya.ru", surname="Ivanov")
+# 		u3 = User(name="olga", password="P@ssw0rd", email="olga@ya.ru", surname="Petrova")
+#
+# 		users = [u1, u2, u3]
+# 		for user in users:
+# 			user.password = get_hash(user.password)
+#
+# 		with db.session.begin():
+# 			db.session.add_all(users)
 
 
 def generate_jwt(user_obj: dict) -> dict:
@@ -79,3 +79,16 @@ def admin_required(func):
 			abort(403)
 		return func(*args, **kwargs)
 	return wrapper
+
+
+def get_filters() -> dict:
+	page = request.args.get('page')
+	status = request.args.get('status')
+
+	filters = {}
+	if page:
+		filters['page'] = page
+	if status:
+		filters['status'] = status
+
+	return filters
