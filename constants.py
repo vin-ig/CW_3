@@ -15,8 +15,8 @@ QUERY = (
 )
 
 # Допустимые ключи для проверки
-USER_KEYS = {'username', 'role', 'password'}
-TOKEN_KEYS = {'username', 'role', 'exp', 'id', 'password'}
+USER_KEYS = {'email', 'password'}
+TOKEN_KEYS = {'email', 'exp', 'id', 'password', 'name', 'surname', 'favourite_genre'}
 MOVIE_KEYS = {'title', 'description', 'trailer', 'year', 'rating', 'genre_id', 'director_id'}
 DIRECTOR_KEYS = {'name'}
 GENRE_KEYS = {'name'}

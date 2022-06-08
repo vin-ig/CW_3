@@ -6,8 +6,8 @@ class UserService:
 	def __init__(self, dao):
 		self.dao = dao
 
-	def get_one(self, name):
-		return self.dao.get_one(name)
+	def get_one(self, email):
+		return self.dao.get_one(email)
 
 	def get_hash(self, password):
 		return hashlib.pbkdf2_hmac(
@@ -17,8 +17,8 @@ class UserService:
 					PWD_HASH_ITERATIONS
 				).decode("utf-8", "ignore")
 
-	def check_password(self, name, other_password):
-		user = self.dao.get_one(name)
+	def check_password(self, email, other_password):
+		user = self.dao.get_one(email)
 		pwd_hash = self.get_hash(other_password)
 		if pwd_hash != user.password:
 			raise Exception('Invalid password')

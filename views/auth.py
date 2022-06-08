@@ -4,7 +4,7 @@ import jwt
 from flask import request, abort
 from flask_restx import Namespace, Resource
 
-from constants import SECRET, ALGO, TOKEN_KEYS
+from constants import SECRET, ALGO, TOKEN_KEYS, USER_KEYS
 from dao.model.user import UserSchema
 from implemented import user_service
 from utils import check_keys, generate_jwt
@@ -12,16 +12,28 @@ from utils import check_keys, generate_jwt
 auth_ns = Namespace('auth')
 
 
-@auth_ns.route('/')
-class AuthVIew(Resource):
+@auth_ns.route('/register/')
+class AuthRegisterView(Resource):
 	def post(self):
 		data = request.json
-		username = data.get('username')
+		try:
+			check_keys(data, USER_KEYS)
+			user = user_service.create(data)
+			return 'User successfully created', 201, {"location": f"/auth/register/{user.id}"}
+		except Exception as error:
+			return f'{error}', 200
+
+
+@auth_ns.route('/login/')
+class AuthLoginVIew(Resource):
+	def post(self):
+		data = request.json
+		email = data.get('email')
 		password = data.get('password')
 
 		try:
-			user = user_service.get_one(username)
-			user_service.check_password(user.username, password)
+			user = user_service.get_one(email)
+			user_service.check_password(user.email, password)
 		except Exception:
 			abort(401)
 
@@ -29,10 +41,12 @@ class AuthVIew(Resource):
 		return generate_jwt(user_dict), 201
 
 	def put(self):
+		access_token = request.json.get('access_token')
 		token = request.json.get('refresh_token')
 
 		try:
 			decode_token = jwt.decode(token, SECRET, ALGO)
+			print(decode_token)
 			time = datetime.datetime.fromtimestamp(decode_token['exp'])
 			check_keys(decode_token, TOKEN_KEYS)
 			if datetime.datetime.utcnow() > time:
