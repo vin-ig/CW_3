@@ -16,7 +16,8 @@ class DirectorsView(Resource):
 	# @auth_required
 	def get(self):
 		"""Выводит всех режиссеров"""
-		directors = director_service.get_all()
+		page = request.args.get('page')
+		directors = director_service.get_all(page)
 		return directors_s.dump(directors), 200
 
 	# @admin_required

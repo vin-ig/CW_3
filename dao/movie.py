@@ -2,6 +2,7 @@ from dao.model.movie import Movie
 from dao.model.director import Director
 from dao.model.genre import Genre
 from constants import QUERY
+from utils import get_pagination
 
 
 class MovieDAO:
@@ -33,23 +34,10 @@ class MovieDAO:
 		query_ = Director.name.label('director'), Genre.name.label('genre')
 		select = self.session.query(*QUERY, *query_).join(Director).join(Genre)
 
-		# # Делаем подборку по фильтрам
-		# if filter == 'year':
-		# 	return select.filter(Movie.year == value).all()
-		# elif filter == 'director':
-		# 	return select.filter(Movie.director_id == value).all()
-		# elif filter == 'genre':
-		# 	return select.filter(Movie.genre_id == value).all()
+		offs, lim = get_pagination(Movie, page)
 
-		try:
-			page = int(page)
-			lim = 3
-		except (TypeError, ValueError):
-			page = 1
-			lim = Movie.query.count()
-		offs = (page - 1) * lim
-
-
+		if status == 'new':
+			select = select.order_by(Movie.year)
 
 		return select.limit(lim).offset(offs).all()
 

@@ -3,7 +3,7 @@ import hashlib
 
 from flask import abort, request
 import jwt
-from constants import SECRET, ALGO, PWD_HASH_SALT, PWD_HASH_ITERATIONS
+from constants import SECRET, ALGO, PWD_HASH_SALT, PWD_HASH_ITERATIONS, LIMIT
 from dao.model.user import User
 
 
@@ -81,14 +81,13 @@ def admin_required(func):
 	return wrapper
 
 
-def get_filters() -> dict:
-	page = request.args.get('page')
-	status = request.args.get('status')
+def get_pagination(model, page):
+	try:
+		page = int(page)
+		lim = LIMIT
+	except (TypeError, ValueError):
+		page = 1
+		lim = model.query.count()
 
-	filters = {}
-	if page:
-		filters['page'] = page
-	if status:
-		filters['status'] = status
-
-	return filters
+	offset = (page - 1) * lim
+	return offset, lim

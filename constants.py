@@ -23,3 +23,5 @@ GENRE_KEYS = {'name'}
 
 SECRET = 's3cR$eT'
 ALGO = 'HS256'
+
+LIMIT = 4

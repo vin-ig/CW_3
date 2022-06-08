@@ -1,4 +1,5 @@
 from dao.model.genre import Genre
+from utils import get_pagination
 
 
 class GenreDAO:
@@ -8,8 +9,9 @@ class GenreDAO:
     def get_one(self, bid):
         return self.session.query(Genre).get(bid)
 
-    def get_all(self):
-        return self.session.query(Genre).all()
+    def get_all(self, page):
+        offs, lim = get_pagination(Genre, page)
+        return self.session.query(Genre).limit(lim).offset(offs).all()
 
     def create(self, genre_d):
         ent = Genre(**genre_d)

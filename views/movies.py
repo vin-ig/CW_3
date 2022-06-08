@@ -5,7 +5,7 @@ from sqlalchemy.orm import exc
 from constants import MOVIE_KEYS
 from implemented import movie_service
 from dao.model.movie import MovieSchema
-from utils import check_keys, get_filters
+from utils import check_keys
 
 movie_ns = Namespace('movies')
 
@@ -19,17 +19,6 @@ class MoviesView(Resource):
 		"""Выводит все фильмы"""
 		page = request.args.get('page')
 		status = request.args.get('status')
-		#
-		# # Используем фильтры из запроса
-		# if page:
-		# 	filter = 'page'
-		# 	value = page
-		# elif status:
-		# 	filter = 'status'
-		# 	value = status
-		# else:
-		# 	filter = None
-		# 	value = None
 
 		movies = movie_service.get_all(page, status)
 
