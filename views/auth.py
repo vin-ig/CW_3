@@ -15,6 +15,7 @@ auth_ns = Namespace('auth')
 @auth_ns.route('/register/')
 class AuthRegisterView(Resource):
 	def post(self):
+		"""Регистрация нового пользователя"""
 		data = request.json
 		try:
 			check_keys(data, USER_KEYS)
@@ -27,6 +28,7 @@ class AuthRegisterView(Resource):
 @auth_ns.route('/login/')
 class AuthLoginVIew(Resource):
 	def post(self):
+		"""Авторизация пользователя"""
 		data = request.json
 		email = data.get('email')
 		password = data.get('password')
@@ -34,6 +36,7 @@ class AuthLoginVIew(Resource):
 		try:
 			user = user_service.get_one(email)
 			user_service.check_password(user.email, password)
+			# user_service.__compare_password(user.password, password)
 		except Exception:
 			abort(401)
 
@@ -41,12 +44,12 @@ class AuthLoginVIew(Resource):
 		return generate_jwt(user_dict), 201
 
 	def put(self):
-		access_token = request.json.get('access_token')
+		"""Генерация новых токенов"""
+		# access_token = request.json.get('access_token')
 		token = request.json.get('refresh_token')
 
 		try:
 			decode_token = jwt.decode(token, SECRET, ALGO)
-			print(decode_token)
 			time = datetime.datetime.fromtimestamp(decode_token['exp'])
 			check_keys(decode_token, TOKEN_KEYS)
 			if datetime.datetime.utcnow() > time:

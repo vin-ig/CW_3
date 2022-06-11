@@ -1,20 +1,60 @@
+import jwt
 from flask import request
 from flask_restx import Namespace, Resource
 
-from constants import USER_KEYS
+from constants import USER_KEYS, SECRET, ALGO
+from dao.model.user import UserSchema
 from implemented import user_service
-from utils import check_keys
+from utils import check_keys, auth_required
 
-user_ns = Namespace('users')
+user_ns = Namespace('user')
+user_s = UserSchema()
 
 
 @user_ns.route('/')
 class UsersVIew(Resource):
-	def post(self):
-		data = request.json
+	@auth_required
+	def get(self):
+		user_token = request.headers.get('Authorization').split()[-1]
+		decode_data = jwt.decode(user_token, SECRET, ALGO)
+		user = user_service.get_one(decode_data.get('email'))
+		if user:
+			return user_s.dump(user), 200
+		else:
+			return '', 404
+
+	# @auth_required
+	def patch(self):
+		"""Выполняет частичное обновление данных пользователя"""
+		user_token = request.headers.get('Authorization').split()[-1]
+		decode_data = jwt.decode(user_token, SECRET, ALGO)
+		user = user_service.get_one(decode_data.get('email'))
+		# print(user.email)
+
 		try:
-			check_keys(data, USER_KEYS)
-			user = user_service.create(data)
-			return 'User successfully created', 201, {"location": f"/movies/{user.id}"}
-		except Exception as error:
-			return f'{error}', 200
+			data = request.json
+			# if not check_keys(data, USER_KEYS):
+			# 	return 'Переданы неверные ключи', 200
+
+			user_service.update(data, user.email)
+			return 'Данные пользователя обновлены', 200
+
+		except AttributeError:
+			return 'Нет пользователя с таким ID', 404
+
+
+@user_ns.route('/password/')
+class UserChangePassword(Resource):
+	# @auth_required
+	def put(self):
+		user_token = request.headers.get('Authorization').split()[-1]
+		decode_data = jwt.decode(user_token, SECRET, ALGO)
+		email = decode_data.get('email')
+		user = user_service.get_one(decode_data.get('email'))
+
+		old_password = request.json.get('old_password')
+		new_password = request.json.get('new_password')
+
+		user_service.change_password(user.email, old_password, new_password)
+
+		return '', 200
