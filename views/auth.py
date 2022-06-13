@@ -6,8 +6,9 @@ from flask_restx import Namespace, Resource
 
 from constants import SECRET, ALGO, TOKEN_KEYS, USER_KEYS
 from dao.model.user import UserSchema
-from implemented import user_service
-from utils import check_keys, generate_jwt
+from implemented import user_service, auth_service
+from utils import check_keys
+
 
 auth_ns = Namespace('auth')
 
@@ -29,9 +30,8 @@ class AuthRegisterView(Resource):
 class AuthLoginVIew(Resource):
 	def post(self):
 		"""Авторизация пользователя"""
-		data = request.json
-		email = data.get('email')
-		password = data.get('password')
+		email = request.json.get('email')
+		password = request.json.get('password')
 
 		try:
 			user = user_service.get_one(email)
@@ -41,7 +41,7 @@ class AuthLoginVIew(Resource):
 			abort(401)
 
 		user_dict = UserSchema().dump(user)
-		return generate_jwt(user_dict), 201
+		return auth_service.generate_jwt(user_dict), 201
 
 	def put(self):
 		"""Генерация новых токенов"""
@@ -54,6 +54,6 @@ class AuthLoginVIew(Resource):
 			check_keys(decode_token, TOKEN_KEYS)
 			if datetime.datetime.utcnow() > time:
 				raise Exception('Expired token')
-			return generate_jwt(decode_token), 201
+			return auth_service.generate_jwt(decode_token), 201
 		except Exception as error:
 			return f'{error}', 200

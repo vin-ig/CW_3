@@ -2,8 +2,8 @@ from setup_db import db
 from marshmallow import Schema, fields
 
 
-class UserMovie(db.Model):
-	__tablename__ = "user_movie"
+class Favourites(db.Model):
+	__tablename__ = "favourites"
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 	movie_id = db.Column(db.Integer, db.ForeignKey("movie.id"), nullable=False)
@@ -11,7 +11,7 @@ class UserMovie(db.Model):
 	movie = db.relationship("Movie")
 
 
-class UserMovieSchema(Schema):
+class FavouritesSchema(Schema):
 	id = fields.Int()
 	user_id = fields.Int()
 	movie_id = fields.Int()

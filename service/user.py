@@ -23,7 +23,6 @@ class UserService:
 					PWD_HASH_SALT,
 					PWD_HASH_ITERATIONS
 				)
-		# return hash_p
 		return base64.b64encode(hash_p).decode('utf-8')
 
 	def check_password(self, email, other_password):
