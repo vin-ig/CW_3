@@ -1,3 +1,4 @@
+import base64
 import datetime
 import hashlib
 
@@ -9,28 +10,29 @@ from dao.model.user import User
 
 def get_hash(password: str):
 	"""Хэширует пароль"""
-	return hashlib.pbkdf2_hmac(
+	hash_password = hashlib.pbkdf2_hmac(
 		'sha256',
 		password.encode('utf-8'),
 		PWD_HASH_SALT,
 		PWD_HASH_ITERATIONS
-	).decode("utf-8", "ignore")
+	)
+	return base64.b64encode(hash_password).decode('utf-8')
 
 
-# def create_data(app, db):
-# 	with app.app_context():
-# 		db.create_all()
-#
-# 		u1 = User(name="vasya", password="my_little_pony", email="vasya@ya.ru", surname="Kozlov")
-# 		u2 = User(name="oleg", password="qwerty", email="oleg@ya.ru", surname="Ivanov")
-# 		u3 = User(name="olga", password="P@ssw0rd", email="olga@ya.ru", surname="Petrova")
-#
-# 		users = [u1, u2, u3]
-# 		for user in users:
-# 			user.password = get_hash(user.password)
-#
-# 		with db.session.begin():
-# 			db.session.add_all(users)
+def create_data(app, db):
+	with app.app_context():
+		db.create_all()
+
+		u1 = User(name="vasya", password="vasya", email="vasya@ya.ru", surname="Kozlov")
+		u2 = User(name="oleg", password="oleg", email="oleg@ya.ru", surname="Ivanov")
+		u3 = User(name="olga", password="olga", email="olga@ya.ru", surname="Petrova")
+
+		users = [u1, u2, u3]
+		for user in users:
+			user.password = get_hash(user.password)
+
+		with db.session.begin():
+			db.session.add_all(users)
 
 
 def generate_jwt(user_obj: dict) -> dict:
@@ -52,26 +54,13 @@ def check_keys(data: dict, allowed_keys: set):
 		raise Exception('Переданы неверные ключи')
 
 
-def auth_required_old(func):
-	def wrapper(*args, **kwargs):
-		if 'Authorization' not in request.headers:
-			abort(401)
-		try:
-			user_token = request.headers.get('Authorization').split()[-1]
-			jwt.decode(user_token, SECRET, ALGO)
-			return func(*args, **kwargs)
-		except:
-			return abort(401)
-	return wrapper
-
-
 def auth_required(func):
 	def wrapper(*args, **kwargs):
 		if 'Authorization' not in request.headers:
 			abort(401)
 		try:
 			user_token = request.headers.get('Authorization').split()[-1]
-			user = jwt.decode(user_token, SECRET, ALGO)
+			jwt.decode(user_token, SECRET, ALGO)
 			return func(*args, **kwargs)
 		except:
 			return abort(401)
