@@ -14,10 +14,11 @@ user_s = UserSchema()
 @user_ns.route('/')
 class UsersVIew(Resource):
 	@auth_required
-	def get(self):
+	def get(self, email):
 		user_token = request.headers.get('Authorization').split()[-1]
 		decode_data = jwt.decode(user_token, SECRET, ALGO)
 		user = user_service.get_one(decode_data.get('email'))
+		print(email)
 		if user:
 			return user_s.dump(user), 200
 		else:

@@ -19,7 +19,6 @@ class MoviesView(Resource):
 		"""Выводит все фильмы"""
 		page = request.args.get('page')
 		status = request.args.get('status')
-
 		movies = movie_service.get_all(page, status)
 
 		return movies_s.dump(movies), 200
@@ -36,7 +35,7 @@ class MoviesView(Resource):
 		return response
 
 
-@movie_ns.route('/<int:uid>')
+@movie_ns.route('/<int:uid>/')
 class MovieView(Resource):
 	def get(self, uid):
 		"""Выводит один фильм"""

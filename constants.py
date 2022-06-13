@@ -1,3 +1,4 @@
+from dao.model.director import Director
 from dao.model.movie import Movie
 
 PWD_HASH_SALT = b'secret here'
@@ -24,4 +25,5 @@ GENRE_KEYS = {'name'}
 SECRET = 's3cR$eT'
 ALGO = 'HS256'
 
-LIMIT = 4
+# Количество объектов на странице
+LIMIT = 12

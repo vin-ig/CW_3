@@ -52,13 +52,26 @@ def check_keys(data: dict, allowed_keys: set):
 		raise Exception('Переданы неверные ключи')
 
 
-def auth_required(func):
+def auth_required_old(func):
 	def wrapper(*args, **kwargs):
 		if 'Authorization' not in request.headers:
 			abort(401)
 		try:
 			user_token = request.headers.get('Authorization').split()[-1]
 			jwt.decode(user_token, SECRET, ALGO)
+			return func(*args, **kwargs)
+		except:
+			return abort(401)
+	return wrapper
+
+
+def auth_required(func):
+	def wrapper(*args, **kwargs):
+		if 'Authorization' not in request.headers:
+			abort(401)
+		try:
+			user_token = request.headers.get('Authorization').split()[-1]
+			user = jwt.decode(user_token, SECRET, ALGO)
 			return func(*args, **kwargs)
 		except:
 			return abort(401)
