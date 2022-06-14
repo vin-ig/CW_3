@@ -5,6 +5,7 @@ from flask import request, abort
 from flask_restx import Namespace, Resource
 
 from constants import SECRET, ALGO, TOKEN_KEYS, USER_KEYS
+from dao.model.favourites import FavouritesSchema
 from dao.model.movie import MovieSchema
 from dao.model.user import UserSchema
 from implemented import user_service, auth_service, movie_service, favourites_service
@@ -13,16 +14,21 @@ from utils import check_keys
 
 favourites_ns = Namespace('favorites')
 
-movie_s = MovieSchema()
+favourite_s = FavouritesSchema()
+favourites_s = FavouritesSchema(many=True)
 movies_s = MovieSchema(many=True)
 
 
 @favourites_ns.route('/movies/')
 class FavouritesView(Resource):
+	# @auth_service.auth_required
 	def get(self):
 		"""Выводит избранные фильмы"""
+		# email = auth_service.get_email_from_jwt()
+		# user = user_service.get_one(email)
+		user_id = 1
 		page = request.args.get('page')
-		movies = favourites_service.get_all(page, status=None)
+		movies = favourites_service.get_all()
 
 		return movies_s.dump(movies), 200
 

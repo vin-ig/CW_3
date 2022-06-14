@@ -52,3 +52,16 @@ def get_pagination(model, page):
 
 	offset = (page - 1) * lim
 	return offset, lim
+
+
+def dec(func):
+	def wrapper(*args, **kwargs):
+		a = 8
+		return func(a, *args, **kwargs)
+	return wrapper
+
+
+@dec
+def my_func(a):
+	return 3 * a
+

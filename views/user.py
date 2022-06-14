@@ -15,9 +15,9 @@ user_s = UserSchema()
 class UsersVIew(Resource):
 	@auth_service.auth_required
 	def get(self):
-		user_token = request.headers.get('Authorization').split()[-1]
-		decode_data = jwt.decode(user_token, SECRET, ALGO)
-		user = user_service.get_one(decode_data.get('email'))
+		"""Профиль пользователя"""
+		email = auth_service.get_email_from_jwt()
+		user = user_service.get_one(email)
 		if user:
 			return user_s.dump(user), 200
 		else:
@@ -26,9 +26,8 @@ class UsersVIew(Resource):
 	@auth_service.auth_required
 	def patch(self):
 		"""Выполняет частичное обновление данных пользователя"""
-		user_token = request.headers.get('Authorization').split()[-1]
-		decode_data = jwt.decode(user_token, SECRET, ALGO)
-		user = user_service.get_one(decode_data.get('email'))
+		email = auth_service.get_email_from_jwt()
+		user = user_service.get_one(email)
 
 		try:
 			data = request.json
@@ -43,9 +42,8 @@ class UsersVIew(Resource):
 class UserChangePassword(Resource):
 	@auth_service.auth_required
 	def put(self):
-		user_token = request.headers.get('Authorization').split()[-1]
-		decode_data = jwt.decode(user_token, SECRET, ALGO)
-		user = user_service.get_one(decode_data.get('email'))
+		email = auth_service.get_email_from_jwt()
+		user = user_service.get_one(email)
 
 		old_password = request.json.get('old_password')
 		new_password = request.json.get('new_password')

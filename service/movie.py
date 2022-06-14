@@ -10,3 +10,7 @@ class MovieService:
 
 	def get_all(self, page, status):
 		return self.dao.get_all(page, status)
+
+	def get_favourites(self, user_id):
+		return self.dao.get_favourites(user_id)
+

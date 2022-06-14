@@ -7,9 +7,13 @@ from flask import request
 from flask_restx import abort
 
 from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS, SECRET, ALGO
+from service.user import UserService
 
 
 class AuthService:
+	# def __init__(self, user_service: UserService) -> None:
+	# 	self.user_service = user_service
+
 	@staticmethod
 	def auth_required(func):
 		def wrapper(*args, **kwargs):
@@ -22,6 +26,12 @@ class AuthService:
 			except:
 				return abort(401)
 		return wrapper
+
+	@staticmethod
+	def get_email_from_jwt():
+		user_token = request.headers.get('Authorization').split()[-1]
+		decode_data = jwt.decode(user_token, SECRET, ALGO)
+		return decode_data.get('email')
 
 	@staticmethod
 	def generate_jwt(user_obj: dict) -> dict:
