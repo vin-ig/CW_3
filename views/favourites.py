@@ -37,4 +37,9 @@ class FavouriteView(Resource):
 		email = auth_service.get_email_from_jwt()
 		user = user_service.get_one(email)
 		favourites_service.add(user_id=user.id, movie_id=uid)
+		return '', 201
+
+	@auth_service.auth_required
+	def delete(self, uid):
+		favourites_service.delete(uid)
 		return '', 200

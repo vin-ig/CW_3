@@ -25,3 +25,8 @@ class FavouritesDAO:
 	def add(self, data):
 		self.session.add(Favourites(**data))
 		self.session.commit()
+
+	def delete(self, movie_id):
+		raw = self.session.query(Favourites).filter(Favourites.movie_id == movie_id).one()
+		self.session.delete(raw)
+		self.session.commit()

@@ -16,3 +16,6 @@ class FavouritesService:
 		data['user_id'] = user_id
 		data['movie_id'] = movie_id
 		return self.dao.add(data)
+
+	def delete(self, movie_id):
+		self.dao.delete(movie_id)
