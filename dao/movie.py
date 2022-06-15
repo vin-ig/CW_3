@@ -1,10 +1,6 @@
 from sqlalchemy import desc
 
 from dao.model.movie import Movie
-from dao.model.director import Director
-from dao.model.genre import Genre
-from constants import QUERY
-from dao.model.user import User
 from utils import get_pagination
 
 
@@ -26,7 +22,3 @@ class MovieDAO:
 			select = select.order_by(desc(Movie.year))
 
 		return select.limit(lim).offset(offs).all()
-
-	def get_favourites(self, user_id):
-		select = self.session.query(Movie)
-		return select.all()

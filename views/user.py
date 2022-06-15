@@ -1,11 +1,8 @@
-import jwt
 from flask import request
 from flask_restx import Namespace, Resource
 
-from constants import USER_KEYS, SECRET, ALGO
 from dao.model.user import UserSchema
 from implemented import user_service, auth_service
-from utils import check_keys
 
 user_ns = Namespace('user')
 user_s = UserSchema()

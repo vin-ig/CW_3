@@ -3,7 +3,6 @@ from flask_restx import Api
 
 from config import Config
 from setup_db import db
-# from utils import create_data
 
 from views.auth import auth_ns
 from views.directors import director_ns
@@ -22,7 +21,6 @@ def register_extensions(app):
     api.add_namespace(auth_ns)
     api.add_namespace(user_ns)
     api.add_namespace(favourites_ns)
-    # create_data(app, db)
 
 
 app = Flask(__name__)
@@ -35,7 +33,6 @@ def index():
 
 
 register_extensions(app)
-
 
 if __name__ == '__main__':
     app.run(port=25000)

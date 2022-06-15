@@ -1,21 +1,10 @@
-import datetime
-
-import jwt
-from flask import request, abort
 from flask_restx import Namespace, Resource
 
-from constants import SECRET, ALGO, TOKEN_KEYS, USER_KEYS
-from dao.model.favourites import FavouritesSchema
 from dao.model.movie import MovieSchema
-from dao.model.user import UserSchema
-from implemented import user_service, auth_service, movie_service, favourites_service
-from utils import check_keys
+from implemented import user_service, auth_service, favourites_service
 
 
 favourites_ns = Namespace('favorites')
-
-favourite_s = FavouritesSchema()
-favourites_s = FavouritesSchema(many=True)
 movies_s = MovieSchema(many=True)
 
 
@@ -42,4 +31,4 @@ class FavouriteView(Resource):
 	@auth_service.auth_required
 	def delete(self, uid):
 		favourites_service.delete(uid)
-		return '', 200
+		return '', 204

@@ -1,10 +1,7 @@
 import base64
-import datetime
 import hashlib
 
-from flask import abort, request
-import jwt
-from constants import SECRET, ALGO, PWD_HASH_SALT, PWD_HASH_ITERATIONS, LIMIT
+from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS, LIMIT
 from dao.model.user import User
 
 
@@ -52,16 +49,3 @@ def get_pagination(model, page):
 
 	offset = (page - 1) * lim
 	return offset, lim
-
-
-def dec(func):
-	def wrapper(*args, **kwargs):
-		a = 8
-		return func(a, *args, **kwargs)
-	return wrapper
-
-
-@dec
-def my_func(a):
-	return 3 * a
-

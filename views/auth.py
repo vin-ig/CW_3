@@ -36,7 +36,6 @@ class AuthLoginVIew(Resource):
 		try:
 			user = user_service.get_one(email)
 			user_service.check_password(user.email, password)
-			# user_service.__compare_password(user.password, password)
 		except Exception:
 			abort(401)
 
@@ -45,7 +44,6 @@ class AuthLoginVIew(Resource):
 
 	def put(self):
 		"""Генерация новых токенов"""
-		# access_token = request.json.get('access_token')
 		token = request.json.get('refresh_token')
 
 		try:

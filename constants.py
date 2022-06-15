@@ -1,19 +1,5 @@
-from dao.model.director import Director
-from dao.model.movie import Movie
-
 PWD_HASH_SALT = b'secret here'
 PWD_HASH_ITERATIONS = 100_000
-
-QUERY = (
-	Movie.id,
-	Movie.title,
-	Movie.description,
-	Movie.trailer,
-	Movie.year,
-	Movie.rating,
-	# Director.name.label('director'),
-	# Genre.name.label('genre')
-)
 
 # Допустимые ключи для проверки
 USER_KEYS = {'email', 'password'}

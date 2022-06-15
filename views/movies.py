@@ -1,11 +1,8 @@
 from flask_restx import Namespace, Resource
-from flask import request, jsonify
-from sqlalchemy.orm import exc
+from flask import request
 
-from constants import MOVIE_KEYS
 from implemented import movie_service
 from dao.model.movie import MovieSchema
-from utils import check_keys
 
 movie_ns = Namespace('movies')
 
@@ -23,17 +20,6 @@ class MoviesView(Resource):
 
 		return movies_s.dump(movies), 200
 
-	def post(self):
-		"""Добавляет новый фильм"""
-		data = request.json
-		if not check_keys(data, MOVIE_KEYS):
-			return 'Переданы неверные ключи', 200
-		new_movie = movie_service.create(data)
-		response = jsonify()
-		response.status_code = 201
-		response.headers['location'] = f'movies/{new_movie.id}'
-		return response
-
 
 @movie_ns.route('/<int:uid>/')
 class MovieView(Resource):
@@ -43,38 +29,4 @@ class MovieView(Resource):
 			movie = movie_service.get_one(uid)
 			return movie_s.dump(movie), 200
 		except AttributeError:
-			return 'Нет фильма с таким ID', 404
-
-	def put(self, uid):
-		"""Выполняет полное обновление полей фильма"""
-		try:
-			data = request.json
-			if not check_keys(data, MOVIE_KEYS):
-				return 'Переданы неверные ключи', 200
-
-			movie_service.update(data, uid)
-			return 'Данные фильма обновлены', 200
-
-		except AttributeError:
-			return 'Нет фильма с таким ID', 404
-
-	def patch(self, uid):
-		"""Выполняет частичное обновление полей фильма"""
-		try:
-			data = request.json
-			if not check_keys(data, MOVIE_KEYS):
-				return 'Переданы неверные ключи', 200
-
-			movie_service.update(data, uid)
-			return 'Данные фильма обновлены', 200
-
-		except AttributeError:
-			return 'Нет фильма с таким ID', 404
-
-	def delete(self, uid):
-		"""Удаляет фильм"""
-		try:
-			movie_service.delete(uid)
-			return 'Фильм удален', 200
-		except (AttributeError, exc.UnmappedInstanceError):
 			return 'Нет фильма с таким ID', 404
