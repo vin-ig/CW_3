@@ -8,6 +8,7 @@ from marshmallow import fields as marshmallow_fields
 
 
 def convert_schema_to_flask_model(schema):
+	"""Конвертирует поля моделей из marshmallow в flask"""
 	TYPE_MAPPING = {
 		marshmallow_fields.String: flask_fields.String,
 		marshmallow_fields.Integer: flask_fields.Integer,
@@ -36,6 +37,7 @@ def get_hash(password: str):
 
 
 def create_data(app, db):
+	"""Наполнение таблицы данными"""
 	with app.app_context():
 		db.create_all()
 
@@ -59,6 +61,7 @@ def check_keys(data: dict, allowed_keys: set):
 
 
 def get_pagination(model, page):
+	"""Определяет параметры для пагинации"""
 	try:
 		page = int(page)
 		lim = LIMIT
