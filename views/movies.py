@@ -12,6 +12,7 @@ movies_s = MovieSchema(many=True)
 
 @movie_ns.route('/')
 class MoviesView(Resource):
+	@movie_ns.response(200, description='Все фильмы')
 	def get(self):
 		"""Выводит все фильмы"""
 		page = request.args.get('page')
