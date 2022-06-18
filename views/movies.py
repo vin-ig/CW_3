@@ -21,8 +21,10 @@ class MoviesView(Resource):
 		return movies_s.dump(movies), 200
 
 
+@movie_ns.doc(params={'uid': 'Movie ID'})
 @movie_ns.route('/<int:uid>/')
 class MovieView(Resource):
+	@movie_ns.response(404, 'Movie not found')
 	def get(self, uid):
 		"""Выводит один фильм"""
 		try:
