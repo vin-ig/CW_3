@@ -29,7 +29,7 @@ class DirectorsView(Resource):
 class DirectorView(Resource):
 	@director_ns.response(200, description='Выбранный режиссер', model=output_model)
 	def get(self, uid):
-		"""Выводит одого режиссера"""
+		"""Выводит одного режиссера"""
 		director = director_service.get_one(uid)
 		if director:
 			return director_s.dump(director), 200
